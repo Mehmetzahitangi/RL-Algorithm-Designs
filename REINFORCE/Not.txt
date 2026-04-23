@@ -1,0 +1,6 @@
+Lunarlander için
+pip install swig
+pip install "gymnasium[box2d]"
+
+çalışmazsa aşadağıdaki yap:
+conda install -c conda-forge box2d-py
