@@ -14,7 +14,7 @@ def test_agent():
     # Ajanı sanki eğitime baştan başlayacakmış gibi boş oluşturuyoruz
     agent = ReinforceAgent(obs_size, n_actions)
 
-    agent.policy_net.load_state_dict(torch.load("reinforce_lunarlander_best.pth"))
+    agent.policy_net.load_state_dict(torch.load("reinforce_lunarlander_entropy_best.pth"))
     #agent.policy_net.load_state_dict(torch.load("reinforce_cartpole_best.pth"))
     agent.policy_net.eval()
 
@@ -25,7 +25,10 @@ def test_agent():
         truncated = False
         
         while not (done or truncated):
-            action, _ = agent.select_action(state)
+            #entropy kullanılan eğitimler için
+            action, _ , _= agent.select_action(state)
+            
+            #action, _ = agent.select_action(state)
             
             state, reward, done, truncated, _ = env.step(action)
             total_reward += reward

@@ -38,7 +38,7 @@ class ReinforceAgent:
         log_prob = m.log_prob(action)
         
         # Ortamın anlayacağı eylemi (sayı olarak) ve eğitimin anlayacağı log_prob'u (tensör olarak) geri dön
-        return action.item(), log_prob
+        return action.item(), log_prob, m.entropy()
 
 
     def calculate_returns(self, rewards):
@@ -60,7 +60,7 @@ class ReinforceAgent:
         return returns
 
 
-    def update_policy(self, log_probs, returns):
+    def update_policy(self, log_probs, returns, entropies, beta=0.01):
         """
         Ajanın bölüm (episode) boyunca topladığı verilerle ağı günceller.
         """
@@ -80,6 +80,9 @@ class ReinforceAgent:
 
         # PyTorch'un türev alabilmesi için listedeki değerleri toplayıp tek bir Tensör yapıyoruz
         loss = torch.stack(policy_loss).sum()
+
+        total_entropy = torch.stack(entropies).sum() # Keşif Bonusu İçin Ekledik
+        loss = loss - (beta * total_entropy) # Loss = Policy Loss - (Beta * Entropy)
 
         self.optimizer.zero_grad() # eski gradyanları, bir öncekin bölümün hesabını temizleme
         loss.backward() # Gradient hesapla

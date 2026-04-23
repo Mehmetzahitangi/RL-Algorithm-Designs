@@ -28,20 +28,23 @@ def train():
     batch_log_probs = []
     batch_returns = []
     all_episode_rewards = []
+    batch_entropies = []
 
     for episode in range(MAX_EPISODES):
         state, _ = env.reset()
         log_probs = []
         rewards = []
+        entropies = []
         
         # 1. Veri Toplama
         while True:
-            action, log_prob = agent.select_action(state)
+            action, log_prob, entropy = agent.select_action(state)
             next_state, reward, done ,truncated ,_ = env.step(action)
             
             
             log_probs.append(log_prob)
             rewards.append(reward)
+            entropies.append(entropy)
 
             state = next_state
             if done or truncated:
@@ -51,11 +54,13 @@ def train():
         returns = agent.calculate_returns(rewards)
         batch_returns.extend(returns)
         batch_log_probs.extend(log_probs)
+        batch_entropies.extend(entropies)
 
         if episode %4 == 0 and episode > 0:
-            agent.update_policy(batch_log_probs, batch_returns)
+            agent.update_policy(batch_log_probs, batch_returns, batch_entropies)
             batch_log_probs = []
             batch_returns = []
+            batch_entropies = []
 
         total_reward = sum(rewards)
         all_episode_rewards.append(total_reward)
