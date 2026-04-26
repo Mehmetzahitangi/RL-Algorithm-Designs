@@ -1,0 +1,11 @@
+Lunarlander hyperparameters:
+
+    lr=7e-4
+    gamma=0.999
+    beta=0.01
+    NUM_ENVS = 16
+    N_STEPS = 128 # 128 adımlık Rollout (N-Step)
+    MAX_UPDATES = 3000
+    entropy_beta = 0.01 
+    entropy_decay = 0.995 
+    min_beta = 0.001
