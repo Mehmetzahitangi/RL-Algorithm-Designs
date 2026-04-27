@@ -2,21 +2,25 @@ import torch
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.distributions import Categorical
-from network import Network
+from network import ActorCriticNetwork
 
 class ReinforceAgent:
 
     def __init__(self, obs_size, n_actions, lr=7e-4, gamma=0.999):
         self.gamma = gamma
+
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"Ajan şu cihazda eğitiliyor: {self.device.type.upper()}")
+
         # Ajan kendi beynini (ağını) oluşturuyor
-        self.policy_net = Network(obs_size, n_actions) # __init__ çağrılır
+        self.policy_net = ActorCriticNetwork(obs_size, n_actions).to(self.device) # __init__ çağrılır
         # Öğrenme aracı (Optimizer)
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=lr)
 
     def select_action(self, state):
 
         #state zaten (16, 8) boyutunda. unsqueeze(0) kullanmıyoruz
-        state_tensor = torch.from_numpy(state).float() 
+        state_tensor = torch.from_numpy(state).float().to(self.device) 
         
         # Ağ artık 16 ajan için 16 farklı olasılık dağılımı ve 16 durum değeri üretiyor
         action_probs, state_value = self.policy_net(state_tensor)  # Actorden action_probs, Criticden state_value
@@ -67,8 +71,8 @@ class ReinforceAgent:
         G_next = next_values.squeeze(-1) # next_values 16 ajanın her biri için 1 değerdir, .squeeze(-1) ile boyutu (16,1) den (16,) e çeviriyoruz
 
         for r, mask in zip(reversed(rewards), reversed(masks)):
-            r_tensor = torch.tensor(r, dtype=torch.float32)
-            mask_tensor = torch.tensor(mask, dtype=torch.float32)
+            r_tensor = torch.tensor(r, dtype=torch.float32, device=self.device)
+            mask_tensor = torch.tensor(mask, dtype=torch.float32, device=self.device)
 
             G_current = r_tensor + (self.gamma * G_next * mask_tensor)  
             

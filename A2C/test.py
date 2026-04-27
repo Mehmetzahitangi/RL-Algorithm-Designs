@@ -6,8 +6,8 @@ import gymnasium as gym
 def test_agent():
 
     print("Ortam Yükleniyor...")
+    
     env = gym.make('LunarLander-v2', render_mode='human')
-
     obs_size = env.observation_space.shape[0]
     n_actions = env.action_space.n
 

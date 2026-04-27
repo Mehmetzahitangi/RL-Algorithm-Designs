@@ -3,6 +3,7 @@ from agent import ReinforceAgent
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import numpy as np
+from atari_wrappers import make_env
 
 def train():
 
@@ -14,20 +15,23 @@ def train():
     N_STEPS = 128 # 128 adımlık Rollout (N-Step)
     MAX_UPDATES = 1000
 
-    envs = gym.make_vec('CartPole-v1', num_envs=NUM_ENVS) # (16, 8) #LunarLander-v2
-
+    envs = gym.make_vec('LunarLander-v2', num_envs=NUM_ENVS) # (16, 8) 
     obs_size = envs.single_observation_space.shape[0] 
-    n_actions = envs.single_action_space.n
+    n_actions = envs.single_action_space.n  
+
+    #envs = gym.vector.SyncVectorEnv([lambda: make_env("ALE/Pong-v5") for _ in range(NUM_ENVS)]) # Görsel atari ortamı için
+    #obs_size = envs.single_observation_space.shape  # Görsel ortam için
+    #n_actions = envs.single_action_space.n
 
     print(f"Tekil Gözlem Boyutu: {obs_size}")
     print(f"Tekil Eylem Sayısı: {n_actions}")
 
-    agent = ReinforceAgent(obs_size, n_actions)
+    agent = ReinforceAgent(obs_size, n_actions, lr=7e-4) # atari ortamı için 1e-4 veya 2.5e-4. Lunarlander ve diğerleri için 7e-4,
     state, _ = envs.reset()
 
     print("Eğitim Başlıyor")
 
-    writer = SummaryWriter("logs/CartPole_a2c")
+    writer = SummaryWriter("logs/deneme_a2c")
 
     all_episode_rewards = []
     best_reward = -1000.0 # LunarLander eksi puanlarla başladığı için -1000 yapılabilir
@@ -73,7 +77,8 @@ def train():
                 
 
         # Bootstrapping 128 adım tamamlandıktan sonra son durumu vererek geleceği tahmin ediyoruz
-        _, next_value = agent.policy_net(torch.from_numpy(next_state).float())
+        next_state_tensor = torch.from_numpy(next_state).float().to(agent.device)
+        _, next_value = agent.policy_net(next_state_tensor)
 
         returns = agent.calculate_returns(rewards, masks, next_value.detach())
         total_loss, a_loss, c_loss, ent_loss = agent.update_policy(log_probs, values, returns, entropies)
@@ -91,7 +96,7 @@ def train():
             
             if mean_score > best_reward:
                 best_reward = mean_score
-                torch.save(agent.policy_net.state_dict(), "a2c_cartpole_best.pth")
+                torch.save(agent.policy_net.state_dict(), "a2c_deneme_best.pth")
                 print(f"Yeni Rekor! Update: {update:3d} | Gerçek Ortalama Puan: {best_reward:.1f} -> Model kaydedildi.")
                 
             # TensorBoard'a artık bu gerçek skoru gönderiyoruz
