@@ -11,3 +11,4 @@ nltk
 pybullet
 ptan
 matplotlib
+mujoco

@@ -1,0 +1,8 @@
+1-) A2C de yaptığımız işlemleri Continuous Space'e göre uyarladık ve çalışma ortamını değiştirdik.
+
+2-) DDPG (Deep Deterministic Policy Gradient) mimarisi oluşturduk. 
+	* Replay Buffer
+   	* Actor ve Critic ağları ayırdık. Actorde ortalama (mu) ve sapma (sigma) hesaplamıyoruz, direkt Tanh kullanıyoruz. Criticde V(s) değil Q(s,a) kullanıyoruz.
+	* Ornstein-Uhlenbeck (OU) Gürültüsü
+	* Target Network
+	* DistributionalCriticNetwork
