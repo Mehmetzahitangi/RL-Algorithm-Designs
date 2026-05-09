@@ -1,0 +1,9 @@
+Klasik A2C'nin Sürekli Uzaydaki beklediğimiz zayıflıkları:
+
+İlk başlarda çok hızlı öğreniyormuş gibi yapacak, puanlar 0'ın üstüne çıkmaya başlayacak.
+
+Ancak Actor_Loss grafiği muhtemelen bir süre sonra aşırı agresifleşecek.
+
+Ajan, bir harekete çok fazla güvenip eski politikası ile yeni politikası arasında devasa bir uçurum yaratacak ve skorlar birdenbire eksi değerlere çakılacak.
+
+PPO'ya ihtiyaç duyduğumuz kısmı görmüş olacağız.
