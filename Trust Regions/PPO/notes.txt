@@ -1,0 +1,3 @@
+İlk olarak Epoch Döngüsü ve Kırpma (Clipping) eklendi.
+
+İkinci aşamada Mini-Batch ve GAE (Generalized Advantage Estimation) eklendi. 
